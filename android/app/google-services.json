@@ -1,0 +1,59 @@
+{
+  "project_info": {
+    "project_number": "816235742025",
+    "firebase_url": "https://feedback-app-cloud.firebaseio.com",
+    "project_id": "feedback-app-cloud",
+    "storage_bucket": "feedback-app-cloud.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:816235742025:android:05c0b70e29f1222e",
+        "android_client_info": {
+          "package_name": "edu.rice.busi.feedbackappflutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "816235742025-6dc13ph00ptaahbuapla35ap30u8ukk5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.rice.busi.feedbackappflutter",
+            "certificate_hash": "24212edd4abbfaf29ca798b4f85eb1e0fd587221"
+          }
+        },
+        {
+          "client_id": "816235742025-k3g9ltg428cnv3vak9voohtq6lg1cnb3.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "816235742025-k3g9ltg428cnv3vak9voohtq6lg1cnb3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRsYw63TVM7zmJVR8WepZyTe5WgcvO47w"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "816235742025-k3g9ltg428cnv3vak9voohtq6lg1cnb3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
