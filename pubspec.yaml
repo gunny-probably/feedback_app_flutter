@@ -12,6 +12,8 @@ dependencies:
   firebase_database: '^1.0.1'
   cloud_firestore: '^0.7.3'
 
+  tuple: '^1.0.1'
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
