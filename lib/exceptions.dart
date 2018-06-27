@@ -27,3 +27,13 @@ class UserException implements Exception {
   @override
   String toString() => base_msg + msg;
 }
+
+class TestException implements Exception {
+  final String base_msg = "Test env does not method ---";
+  final String msg;
+
+  const TestException(this.msg);
+
+  @override
+  String toString() => base_msg + msg;
+}

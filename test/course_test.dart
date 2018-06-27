@@ -1,28 +1,27 @@
 import 'package:test/test.dart';
 
-import '../lib/course.dart';
-import '../lib/utils.dart';
+import '../lib/Course.dart';
 
 void main() {
-  group("Course class unit testing", () {
-    test("Course cons", ()
+  group("Course class", () {
+    test("cons", ()
     {
       Course c = Course.fromMap({
-      'id': get_new_id("courses/"),
-      'startdate': "06/26/2018",
-      'enddate': "06/26/2018",
+      'startdate': "2019-06-25",
+      'enddate': "2019-06-25",
       'my_meetings': [],
       'my_instrs': [],
       'my_stdnts': [],
       'my_rosters': [],
       'my_schedules': [],
-      'cur_roster': [],
-      'cur_schedule': []
+      'cur_roster': null,
+      'cur_schedule': null,
+      'env': "test"
       });
-      Course c_copy = read_cloudfs("courses/", 0);
-      expect(c_copy.id, equals(0));
-      expect(c_copy.startdate, equals("06/26/2018"));
-      expect(c_copy.enddate, equals("06/26/2018"));
+      DateTime now = new DateTime.now();
+      expect(c.startdate.isAfter(now), isTrue);
+      expect(c.enddate.isAfter(now), isTrue);
+      expect(c.enddate.isAtSameMomentAs(c.startdate), isTrue);
     });
   });
 }

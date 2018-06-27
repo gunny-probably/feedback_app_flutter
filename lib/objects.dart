@@ -4,7 +4,7 @@ import 'dart:collection';
 import 'package:tuple/tuple.dart';
 
 class Meeting {
-  int id;
+  String id;
   String course_id;
   int my_roster;
   int my_roster_state;
@@ -24,7 +24,7 @@ class Meeting {
 }
 
 class Round {
-  int id;
+  String id;
   int course_id;
   int meeting_id;
   Tuple2<int, int> perm;
@@ -48,7 +48,7 @@ class Round {
 }
 
 class Schedule {
-  int id;
+  String id;
   String course_id;
   List<Tuple3<String, String, String>> val;
 
@@ -62,7 +62,7 @@ class Schedule {
 }
 
 class Roster {
-  int id;
+  String id;
   String course_id;
   Map<String, Map<String, int>> val;
   int roster_state;
@@ -78,7 +78,7 @@ class Roster {
 }
 
 class Role {
-  int id;
+  String id;
   String course_id;
   int roster_id;
   String stdnt_id;
@@ -96,7 +96,7 @@ class Role {
 }
 
 class Rubric {
-  int id;
+  String id;
   int course_id;
   int roster_id;
   Map val;
@@ -112,7 +112,7 @@ class Rubric {
 }
 
 class Response {
-  int id;
+  String id;
   String course_id;
   int meeting_id;
   int round_id;
