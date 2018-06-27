@@ -6,7 +6,7 @@ import 'package:tuple/tuple.dart';
 
 import 'users.dart';
 import 'objects.dart';
-import 'utils.dart';
+import 'Firebase.dart';
 
 class Course {
   String id;
@@ -48,8 +48,8 @@ class Course {
 
   Course.fromMap(Map<String, dynamic> fields) {
     this.id = fields['id'];
-    this.startdate = fields['startdate'];
-    this.enddate = fields['enddate'];
+    this.startdate = DateTime.parse(fields['startdate']);
+    this.enddate = DateTime.parse(fields['enddate']);
     this.my_meetings = fields['my_meetings'];
     this.my_instrs = fields['my_instrs'];
     this.my_stdnts = fields['my_stdnts'];
