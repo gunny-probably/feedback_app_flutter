@@ -7,7 +7,7 @@ class Stdnt {
   Stdnt(this.id, this.first_name, this.last_name, this.netid);
 
   // json, map cons
-  Stdnt.fromJson(Map<String, dynamic> fields) {
+  Stdnt.fromMap(Map<String, dynamic> fields) {
     this.id = fields['id'];
     this.first_name = fields['first_name'];
     this.last_name = fields['last_name'];
@@ -22,7 +22,7 @@ class Instr extends Stdnt {
     this.instr_id = instr_id;
   }
 
-  Instr.fromJson(Map<String, dynamic> fields) : super(fields['id'], fields['first_name'], fields['last_name'], fields['netid']) {
+  Instr.fromMap(Map<String, dynamic> fields) : super(fields['id'], fields['first_name'], fields['last_name'], fields['netid']) {
     this.instr_id = fields['instr_id'];
   }
 
