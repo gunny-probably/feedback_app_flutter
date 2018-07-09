@@ -29,10 +29,20 @@ class UserException implements Exception {
 }
 
 class TestException implements Exception {
-  final String base_msg = "Test env does not method ---";
+  final String base_msg = "Test env does not method --- ";
   final String msg;
 
   const TestException(this.msg);
+
+  @override
+  String toString() => base_msg + msg;
+}
+
+class DataException implements Exception {
+  final String base_msg = "Data error --- ";
+  final String msg;
+
+  const DataException(this.msg);
 
   @override
   String toString() => base_msg + msg;
