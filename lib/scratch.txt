@@ -1,0 +1,59 @@
+class MyMeetingPage extends StatefulWidget {
+  MyMeetingPage({Key key, this.db, this.parent_course, this.user_id}) : super(key: key);
+
+  Map db;
+  String parent_course;
+  String user_id;
+
+  @override
+  _mpgState createState() => new _mpgState();
+
+}
+
+class _mpgState extends State<MyMeetingPage> {
+  List<Card> meeting_cards;
+
+  _mpgState() : super();
+
+  @override
+  Widget build(BuildContext context) {
+
+    /* convenience function */
+    Card makeMeetingCard(Meeting meeting) {
+      return new Card(child: Column(
+        children: <Widget>[
+          new ListTile(
+            // TODO idx param for meeting class
+            title: Text(meeting.idx.toString(), style: TextStyle(color: Theme.of(context).primaryColor),),
+            subtitle: Text("placeholder", style: TextStyle(color: Theme.of(context).primaryColor),),
+            leading: Icon(Icons.people, color: Theme.of(context).primaryColor,),),
+          new ListTile(
+              title: Text(meeting.starttime.toString()),
+              subtitle: Text(meeting.endtime.toString()),
+              leading: Icon(Icons.access_time))
+        ],
+      ),);
+    }
+
+    meeting_cards = <Card>[];
+    Course parent_course_full = read_db(widget.parent_course, "courses/", db: widget.db);
+    for (String meeting in parent_course_full.my_meetings) { // TODO implement read_db as regex firs argument
+      Meeting meeting_full = read_db(meeting, "meetings/", db: widget.db);
+      meeting_cards.add(makeMeetingCard(meeting_full));
+    }
+    return new Scaffold(
+      appBar: new AppBar(
+          title: Text(parent_course_full.name+" Sessions", style: TextStyle(fontWeight: FontWeight.w600),),
+          leading: RaisedButton(
+            onPressed: () {Navigator.pop(context);},
+            child: Icon(Icons.arrow_back, color: Colors.white,),
+            color: Theme.of(context).primaryColor,
+          )),
+      body: new Center(
+        child: new ListView(
+          children: meeting_cards,
+        ),
+      ),
+    );
+  }
+}

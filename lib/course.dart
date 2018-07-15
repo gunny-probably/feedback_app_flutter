@@ -9,13 +9,15 @@ import 'users.dart';
 import 'objects.dart';
 import 'db.dart';
 import 'exceptions.dart';
+import 'simple.dart';
 
 final uuid = new Uuid();
 
 class Course {
   String id;
-  DateTime startdate;
-  DateTime enddate;
+  String name;
+  DateTimeSimple startdate;
+  DateTimeSimple enddate;
   List my_meetings;// = [];
   List my_instrs;// = [];
   List my_stdnts;// = [];
@@ -26,6 +28,7 @@ class Course {
   Map<String, Map<String, String>> my_stdnts_roles ={};
 
   Course({this.id,
+      this.name,
       this.startdate,
       this.enddate,
       this.my_meetings,
@@ -47,6 +50,7 @@ class Course {
   Course.fromMap(Map<String, dynamic> fields) {
     // TODO this should never accept corrupt data. refactor after main cos is done
     this.id = fields["id"];
+    this.name = fields["name"];
     this.startdate = DateTime.parse(fields['startdate']);
     this.enddate = DateTime.parse(fields['enddate']);
     this.my_meetings = fields['my_meetings'];
@@ -165,7 +169,7 @@ class Course {
     var i = 0;
     stndts.shuffle();
     for (var stdnt in stndts) {
-      assigned.addAll({stdnt: roles[i].id});
+      assigned.addAll({stdnt: roles[i]});
       i = (i + 1) % roles.length;
     }
     return assigned;

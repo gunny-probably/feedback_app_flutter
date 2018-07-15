@@ -6,6 +6,14 @@ import 'exceptions.dart';
 
 
 /* entry method */
+List read_db_subdir(String subdir, {Map<String, List> db}) {
+  if (db != null) {
+    return db[subdir];
+  }
+  // TODO add cloud varriant
+}
+
+/* entry method */
 dynamic read_db(String id, String subdir, {Map<String, List> db}) {
   if (db != null) {
     return db[subdir].where((elem) => elem.id == id).toList()[0];
@@ -36,7 +44,7 @@ dynamic read_cloudfs(String docpath, dynamic id) {
 }
 
 /* entry method */
-void write_db(dynamic obj, String subdir, {Map<String, List<dynamic>> db}) {
+void write_db(dynamic obj, String subdir, {Map db}) {
   if (db != null) {
     if (db[subdir] == null) db[subdir] = [];
     var idx = db[subdir].indexWhere((elem) => elem.id == obj.id);

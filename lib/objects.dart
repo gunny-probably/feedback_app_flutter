@@ -14,6 +14,7 @@ String get_id() {
 
 class Meeting {
   String id;
+  int idx;
   String course_id;
   String my_roster;
   List my_stdnts;
@@ -22,6 +23,7 @@ class Meeting {
   DateTime endtime;
 
   Meeting({this.id,
+      this.idx,
       this.course_id,
       this.my_roster,
       this.my_stdnts,
@@ -34,6 +36,7 @@ class Meeting {
 
   Meeting.fromMap(Map<String, dynamic> fields) {
     this.id = fields['id'];
+    this.idx = fields['idx'];
     this.course_id = fields['course_id'];
     this.my_roster = fields['my_roster'];
     this.my_stdnts = fields['my_stdnts'];
