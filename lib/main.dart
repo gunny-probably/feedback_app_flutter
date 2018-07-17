@@ -5,6 +5,8 @@ import 'objects.dart';
 import 'db.dart';
 import 'users.dart';
 import 'simple.dart';
+import 'defs.dart';
+
 
 void main() => runApp(new MyApp());
 
@@ -131,7 +133,7 @@ class MyApp extends StatelessWidget {
         // "hot reload" (press "r" in the console where you ran "flutter run",
         // or press Run > Flutter Hot Reload in IntelliJ). Notice that the
         // counter didn't reset back to zero; the application is not restarted.
-        primarySwatch: Colors.red,
+        primarySwatch: pri,
       ),
       home: new MyHomePage(title: 'Feedback Alpha', db: local_db, user_id: instr_id),
     );
@@ -151,6 +153,7 @@ class MyHomePage extends StatefulWidget {
 
   Map<String, List<dynamic>> db;
   String user_id;
+  String fake_user_id;
   bool instr;
 
   @override
@@ -168,10 +171,45 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List<Card> course_cards;
   List<Card> meeting_cards;
+  List<Card> round_cards;
   String cur_course;
+  String cur_meeting;
+  String cur_round;
+
+  final String spoke_yes = "You are the speaker for this round. ";
+  final String spoke_no = "You are assigned to grade this round. ";
+  final String role_yes = "Your role is ";
 
   @override
   Widget build(BuildContext context) {
+    Course cur_course_full = read_db(cur_course, "courses/", db: super.widget.db);
+
+    Form makeRubricForm(Rubric rub) {
+
+    }
+
+    /* convenience function */
+    Card makeRoundCard(Round round) {
+      return new Card(child: Column(
+        children: <Widget>[
+          new ListTile(
+            // TODO idx param for meeting class
+            title: Text("Speaker: "+round.speaker, style: TextStyle(color: Theme.of(context).primaryColor),),
+            subtitle: Text(  // TODO fuser_id for fake stdnt in this namespace
+              round.speaker.compareTo(super.widget.fake_user_id) == 0 ? spoke_yes : spoke_no + role_yes + cur_course_full.my_stdnts_roles[cur_course_full.cur_roster][super.widget.fake_user_id],
+              style: TextStyle(color: Theme.of(context).primaryColor),),
+            leading: Icon(Icons.android, color: Theme.of(context).primaryColor,),
+            onTap: () {
+              this.setState(() {this.cur_round = round.id;});
+              // TODO go to the rubric/response tab
+              },),
+          new ListView(
+            children: round.my_stdnts.map(
+              (s_id) => read_db(s_id, "stdnts/", db: widget.db)).map(
+                (s_full) => Text(s_full.first_name + " " + s_full.last_name)).toList())
+        ],
+      ),);
+    }
 
     /* convenience function */
     Card makeMeetingCard(Meeting meeting) {
@@ -225,6 +263,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     course_cards = <Card>[];
     meeting_cards = <Card>[];
+    round_cards = <Card>[];
 
     List all_courses = read_db_subdir("courses/", db: widget.db);
     print("Trace --- MyHomePageState --- building Course cards");
@@ -238,6 +277,11 @@ class _MyHomePageState extends State<MyHomePage> {
       // TODO meeting and round should also support instr lookup
       meeting_cards.add(makeMeetingCard(meeting_full));
     }
+    List all_rounds = read_db_subdir("rounds/", db: widget.db);
+    for (Round round_full in all_rounds) {
+      // TODO switch to fake user
+      if (round_full.my_stdnts.contains(widget.fake_user_id)) round_cards.add(makeRoundCard(round_full));
+    }
 
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
@@ -246,13 +290,14 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return new DefaultTabController(
-        length: 2,  // TODO parameterize
+        length: 3,  // TODO parameterize
         child: new Scaffold(
           appBar: new AppBar(
             bottom: TabBar(
               tabs: [
                 Tab(icon: Icon(Icons.school)),
                 Tab(icon: Icon(Icons.people)),
+                Tab(icon: Icon(Icons.notifications))
               ]
             ),
             // the App.build method, and use it to set our appbar title.
@@ -264,10 +309,148 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               new ListView(children: course_cards,),
               new ListView(children: meeting_cards),
+              new ListView(children: round_cards)
             ]
           ),
       ));
   }
 }
 
+class RubricForm extends StatefulWidget {
+  Map val;
+  String course_id;
+  String meeting_id;
+  String round_id;
+  String ros_id;
+  String rub_id;
+  String fake_user_id;
+  String speaker;
+  Map db;
 
+  RubricForm(
+      this.val,
+      this.course_id,
+      this.meeting_id,
+      this.round_id,
+      this.ros_id,
+      this.rub_id,
+      this.fake_user_id,
+      this.speaker,
+      this.db);
+
+  @override
+  _rfState createState() {
+    return _rfState();
+  }
+}
+
+class _rfState extends State<RubricForm> {
+  static String resp_id = get_id();
+  Map reply_builder = {};
+  final String textPrompt = "Fill me in";
+  final String listPrompt = "Choose one";
+  final String errorPrompt = "This field is required.";
+  final String noRubPrompt = "Oops! No meeting round selected.";
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  Widget build(BuildContext context) {
+    final Size screenSize = MediaQuery.of(context).size;
+
+    List<Widget> buildFields() {  // build a list of rows
+      var fields_coll = <Widget>[];
+      for (MapEntry kv in super.widget.val.entries) {
+        if (kv.value is List) {
+          List<DropdownMenuItem> options = kv.value.map((option) =>
+              DropdownMenuItem(child: Text(option),));  // TODO val param?
+          fields_coll.add(
+              FormField(
+                builder: (ffState) {
+                  return DropdownButton(
+                    items: options,
+                    onChanged: (choiceOption) {
+                      ffState.setState(() {
+                        ffState.setValue(choiceOption);
+                      })
+                    },
+                    elevation: 9,
+                  );},
+                onSaved: (choiceOption) {reply_builder[kv.key] = choiceOption;},
+                validator: (choiceOption) => choiceOption == null ? errorPrompt : null,
+              )
+          );
+        } else if (kv.value is String) {
+          fields_coll.add(TextFormField(
+            keyboardType: TextInputType.text,
+            decoration: new InputDecoration(
+              labelText: kv.key,
+              hintText: textPrompt,
+            ),
+            initialValue: "",
+            onSaved: (inputText) {reply_builder[kv.key] = inputText;},
+            validator: (inputText) => inputText.compareTo("") == 0 ? errorPrompt : null,
+          ));
+        } else {
+          continue;
+        }
+      }
+      Container submitButton = Container(
+        width: screenSize.width,
+        child: RaisedButton(
+          child: Text(
+            "Submit Feedback",
+            style: TextStyle(
+              color: pri_r2,
+              fontWeight: bold2,
+              fontSize: h2
+            ),
+          ),
+          onPressed: () {
+            if (this._formKey.currentState.validate()) {
+              this._formKey.currentState.save();
+              Response(id: resp_id,
+                  course_id: super.widget.course_id,
+                  meeting_id: super.widget.meeting_id,
+                  round_id: super.widget.round_id,
+                  roster_id: super.widget.ros_id,
+                  rubric_id: super.widget.rub_id,
+                  stdnt_id: super.widget.fake_user_id,
+                  speaker: super.widget.speaker,
+                  val: reply_builder,
+                  local_db: super.widget.db);
+              print("Trace _rfState --- submit hit --- Saving response");
+            }
+          },
+          color: pri,
+        ),
+        margin: EdgeInsets.only(
+          top: inset1,
+          bottom: inset1
+        ),
+      );
+      fields_coll.add(submitButton);
+      return fields_coll;
+    }
+
+    Widget buildNA() {
+      return Center(
+        child: Text(noRubPrompt,
+          style: TextStyle(
+            color: Theme.of(context).primaryColor,
+            fontWeight: bold1,
+            fontSize: h4),
+        ),
+      );
+    }
+
+    return Container(
+        padding: EdgeInsets.all(inset1),
+        child: super.widget.val != null ? Form(
+          key: this._formKey,
+          child: ListView(
+            children: buildFields(),
+          ),
+        ) : buildNA()
+    );
+  }
+}
