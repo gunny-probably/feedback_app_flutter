@@ -107,6 +107,7 @@ class Course {
       'my_roster': this.cur_roster,
       'my_stdnts': this.my_stdnts,
       'my_rounds': rounds,
+      'idx': 0,
     });
     final meeting = Meeting.fromMap(meeting_cons);
     write_db(meeting, "meetings/", db: local_db);
@@ -146,7 +147,7 @@ class Course {
           my_stdnts: groups[i],
           speaker: groups[i][j],  // varies each j
           my_responses: [],
-          complete: false,
+          complete: {},
           parent_roster: this.cur_roster, roster_state: cur_roster_state,
           local_db: local_db
         );

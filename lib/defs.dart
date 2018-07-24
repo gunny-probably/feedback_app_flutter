@@ -10,6 +10,10 @@ double inset1 = 20.0;
 FontWeight bold1 = FontWeight.w600;
 FontWeight bold2 = FontWeight.w400;
 
+int buttonElevation1 = 12;
+
+double cardElevation1 = 8.0;
+double cardElevation2 = 4.0;
 
 Color pri = Color.fromRGBO(124, 38, 25, 1.0);
 Color pri_r1 = Color.fromRGBO(162, 70, 65, 1.0);

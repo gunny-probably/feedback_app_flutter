@@ -16,7 +16,14 @@ List read_db_subdir(String subdir, {Map<String, List> db}) {
 /* entry method */
 dynamic read_db(String id, String subdir, {Map<String, List> db}) {
   if (db != null) {
-    return db[subdir].where((elem) => elem.id == id).toList()[0];
+    print("Trace read_db() --- db item id =" + db[subdir][0].id);
+    print("Trace read_db() --- searched item id =" + id);
+    var search_result = db[subdir].where((elem) => elem.id == id);
+    if (search_result.length == 0) {
+      return null;
+    } else {
+      return search_result.single;
+    }
   }
   return read_cloudfs(subdir, id);
 }

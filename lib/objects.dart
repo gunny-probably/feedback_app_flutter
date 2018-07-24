@@ -54,7 +54,7 @@ class Round {
   List<String> my_stdnts;
   String speaker;
   List<String> my_responses;
-  bool complete;
+  Map complete;
   String parent_roster;
   int roster_state;
 
@@ -65,11 +65,15 @@ class Round {
       this.my_stdnts,
       this.speaker,
       this.my_responses,
-      this.complete=false,
+      this.complete,
       this.parent_roster,
       this.roster_state,
       local_db}) {
     write_db(this, "rounds/", db: local_db);
+    for (String stdnt in my_stdnts) {
+      if (stdnt.compareTo(this.speaker) == 0) continue;
+      this.complete[stdnt] = false;
+    }
   }
 
   Round.fromMap(Map<String, dynamic> fields) {

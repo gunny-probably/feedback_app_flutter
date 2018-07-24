@@ -30,7 +30,8 @@ void makeMockData(Map ids, Map local_db) {
       my_rounds: [],
       local_db: local_db);
   Course course = Course(id: ids["course"], startdate: DateTimeSimple(2018, 8, 12), enddate: DateTimeSimple(2018, 9, 12),
-      name: "BUSI 296", my_meetings: [], my_instrs: [ids["instr"]], my_rosters: [ids["ros_1"]], my_schedules: [], my_stdnts: [ids["stdnt_1"], ids["stdnt_2"]],  local_db: local_db);
+      name: "BUSI 296", my_meetings: [], my_instrs: [ids["instr"]], my_rosters: [ids["ros_1"]], my_schedules: [], my_stdnts: [ids["stdnt_1"], ids["stdnt_2"]],
+      cur_roster: ids["ros_1"], local_db: local_db);
   Instr instr = Instr(id: ids["instr"], first_name: "Benito", last_name: "Aranda-Comer", my_courses: [ids["course"]], netid: 'bad180', local_db: local_db);
   Roster ros_1 = Roster(
       id: ids["ros_1"],
@@ -85,43 +86,56 @@ void makeMockData(Map ids, Map local_db) {
     "endtime": DateTime.now().add(new Duration(hours: 11))
   }, local_db: local_db);
   write_db(course, "courses/", db: local_db);
-
-
 }
 
 class MyApp extends StatelessWidget {
   Map<String, List<dynamic>> local_db;
+  String stdnt_1_id;
+  String stdnt_2_id;
+  String role_1_id;
+  String role_2_id;
+  String rub_1_id;
+  String rub_2_id;
+  String ros_1_id;
+  String sch_id;
+  String course_id;
+  String instr_id;
+  String meeting_id;
+
+  MyApp() {
+    print("Trace --- Constructing MyApp");
+    local_db = {};
+    this.stdnt_1_id = get_id();
+    this.stdnt_2_id = get_id();
+    this.role_1_id = get_id();
+    this.role_2_id = get_id();
+    this.rub_1_id = get_id();
+    this.rub_2_id = get_id();
+    this.ros_1_id = get_id();
+    this.sch_id = get_id();
+    this.course_id = get_id();
+    this.instr_id = get_id();
+    this.meeting_id = get_id();
+    Map kwargs = {
+      "stdnt_1": this.stdnt_1_id,
+      "stdnt_2": this.stdnt_2_id,
+      "role_1": this.role_1_id,
+      "role_2": this.role_2_id,
+      "rub_1": this.rub_1_id,
+      "rub_2": this.rub_2_id,
+      "ros_1": this.ros_1_id,
+      "sch": this.sch_id,
+      "course": this.course_id,
+      "instr": this.instr_id,
+      "meeting": this.meeting_id
+    };
+    makeMockData(kwargs, local_db);
+  }
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    local_db = {};
-    String stdnt_1_id = get_id();
-    String stdnt_2_id = get_id();
-    String role_1_id = get_id();
-    String role_2_id = get_id();
-    String rub_1_id = get_id();
-    String rub_2_id = get_id();
-    String ros_1_id = get_id();
-    String sch_id = get_id();
-    String course_id = get_id();
-    String instr_id = get_id();
-    String meeting_id = get_id();
-    Map kwargs = {
-      "stdnt_1": stdnt_1_id,
-      "stdnt_2": stdnt_2_id,
-      "role_1": role_1_id,
-      "role_2": role_2_id,
-      "rub_1": rub_1_id,
-      "rub_2": rub_2_id,
-      "ros_1": ros_1_id,
-      "sch": sch_id,
-      "course": course_id,
-      "instr": instr_id,
-      "meeting": meeting_id
-    };
-    makeMockData(kwargs, local_db);
-
+    print("Trace --- MyApp --- instr_id = $instr_id");
     return new MaterialApp(
       title: 'Flutter Demo',
       theme: new ThemeData(
@@ -133,16 +147,23 @@ class MyApp extends StatelessWidget {
         // "hot reload" (press "r" in the console where you ran "flutter run",
         // or press Run > Flutter Hot Reload in IntelliJ). Notice that the
         // counter didn't reset back to zero; the application is not restarted.
-        primarySwatch: pri,
+
+        primaryColor: pri,
+        primaryColorLight: pri_r1,
+        accentColor: pri_r2,
+        cardColor: Colors.white,
+        buttonColor: right,
       ),
-      home: new MyHomePage(title: 'Feedback Alpha', db: local_db, user_id: instr_id),
+      home: new MyHomePage(title: 'Feedback Alpha', db: local_db, user_id: instr_id, fake_user_id: stdnt_1_id),
     );
   }
 }
 
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title, this.db, this.user_id}) : super(key: key) {
+  MyHomePage({Key key, this.title, this.db, this.user_id, this.fake_user_id}) : super(key: key) {
+    print("Trace --- MyHomePage cons entry");
+    print("Trace --- this.user_id = ${this.user_id}");
 
   }
   // This widget is the home page of your application. It is stateful, meaning
@@ -154,13 +175,9 @@ class MyHomePage extends StatefulWidget {
   Map<String, List<dynamic>> db;
   String user_id;
   String fake_user_id;
-  bool instr;
 
   @override
   _MyHomePageState createState() => new _MyHomePageState();
-
-  // TODO add trigger to rebuild state whenever cur_course get reassigned
-
 }
 // case the title) provided by the parent (in this case the App widget) and
 // used by the build method of the State. Fields in a Widget subclass are
@@ -182,44 +199,99 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    Course cur_course_full = read_db(cur_course, "courses/", db: super.widget.db);
-
-    Form makeRubricForm(Rubric rub) {
-
-    }
-
     /* convenience function */
     Card makeRoundCard(Round round) {
-      return new Card(child: Column(
-        children: <Widget>[
-          new ListTile(
-            // TODO idx param for meeting class
-            title: Text("Speaker: "+round.speaker, style: TextStyle(color: Theme.of(context).primaryColor),),
-            subtitle: Text(  // TODO fuser_id for fake stdnt in this namespace
-              round.speaker.compareTo(super.widget.fake_user_id) == 0 ? spoke_yes : spoke_no + role_yes + cur_course_full.my_stdnts_roles[cur_course_full.cur_roster][super.widget.fake_user_id],
-              style: TextStyle(color: Theme.of(context).primaryColor),),
-            leading: Icon(Icons.android, color: Theme.of(context).primaryColor,),
-            onTap: () {
-              this.setState(() {this.cur_round = round.id;});
-              // TODO go to the rubric/response tab
-              },),
-          new ListView(
-            children: round.my_stdnts.map(
-              (s_id) => read_db(s_id, "stdnts/", db: widget.db)).map(
-                (s_full) => Text(s_full.first_name + " " + s_full.last_name)).toList())
-        ],
-      ),);
+      print("Trace --- makeRoundCard() --- cur_round id = $cur_round");
+      Course cur_course_full = read_db(cur_course, "courses/", db: super.widget.db);
+      print("Trace --- makeRoundCard() --- cur_course_full = $cur_course_full");
+      Meeting cur_meeting_full = read_db(cur_meeting, "meetings/", db: super.widget.db);
+      return new Card(
+        elevation: cardElevation2,
+        child: Column(
+          children: <Widget>[
+            new ListTile(
+              // TODO idx param for meeting class
+              title: Text(
+                "Speaker: "+round.speaker,
+                style: TextStyle(
+                    color: Theme.of(context).primaryColor),),
+              subtitle: Text(  // TODO fuser_id for fake stdnt in this namespace
+                round.speaker.compareTo(super.widget.fake_user_id) == 0 ?
+                  spoke_yes : spoke_no + role_yes +
+                    cur_course_full.my_stdnts_roles[cur_course_full.cur_roster]
+                      [super.widget.fake_user_id],
+                style: TextStyle(color: Theme.of(context).primaryColor),),
+              leading: Icon(Icons.android, color: Theme.of(context).primaryColor,),
+              onTap: () {
+                this.setState(() {
+                  this.cur_round = round.id;
+                });
+//                if (round.complete[super.widget.fake_user_id]) {
+//                  // TODO add snackbar support for this. Tell people that you can't access this form anymore.
+//                }
+                Course course_full = read_db(
+                    this.cur_course, "courses/", db: super.widget.db);
+                String fake_role = course_full.my_stdnts_roles[round
+                    .parent_roster][super.widget.fake_user_id];
+                print("Trace --- _MyHomePageState class --- round card button --- fake_role = $fake_role");
+                Roster ros_full = read_db(
+                    round.parent_roster, "rosters/", db: super.widget.db);
+                print("Trace --- _MyHomePageState class --- round card button --- round.roster_state = ${round.roster_state}");
+                String designated_rubric = ros_full.val[round
+                    .roster_state][fake_role];
+                print("Trace --- _MyHomePageState class --- round card button --- designated_rubric = $designated_rubric");
+                Rubric designated_rubric_full = read_db(
+                    designated_rubric, "rubrics/", db: super.widget.db);
+                Navigator.push(context,
+                  MaterialPageRoute(
+                    builder: (context) => RubricForm(
+                        val: designated_rubric_full.val,
+                        course_id: this.cur_course,
+                        meeting_id: cur_meeting,
+                        round_id: cur_round,
+                        ros_id: round.parent_roster,
+                        rub_id: designated_rubric,
+                        fake_user_id: super.widget.fake_user_id,
+                        speaker: round.speaker,
+                        db: super.widget.db
+                    )
+                  )
+                );
+                // TODO go to the rubric/response tab
+              },
+            ),
+            new Container(
+              padding: EdgeInsets.all(inset1),
+              child: Column(
+                children: round.my_stdnts.map(
+                  (s_id) => read_db(s_id, "stdnts/", db: widget.db)).map(
+                    (s_full) => ListTile(
+                      title: Text(s_full.first_name + " " + s_full.last_name),
+                      subtitle: Text(round.speaker == s_full.id ? "Speaker" : "Grader"),
+                      leading: Icon(Icons.android),
+                    )).toList()
+              )
+            )
+          ],
+        ),
+      );
     }
 
     /* convenience function */
     Card makeMeetingCard(Meeting meeting) {
+      print("Trace --- makeMeetingCard() --- cur_course id = " + cur_course);
+      Course cur_course_full = read_db(cur_course, "courses/", db: super.widget.db);
+      if (cur_course_full == null) return null;  // NOTE hotfix to return null instead of breaking app.
+
       return new Card(child: Column(
         children: <Widget>[
           new ListTile(
             // TODO idx param for meeting class
             title: Text(meeting.idx.toString(), style: TextStyle(color: Theme.of(context).primaryColor),),
-            subtitle: Text("placeholder", style: TextStyle(color: Theme.of(context).primaryColor),),
-            leading: Icon(Icons.people, color: Theme.of(context).primaryColor,),),
+            subtitle: Text(cur_course_full.name, style: TextStyle(color: Theme.of(context).primaryColor),),
+            leading: Icon(Icons.people, color: Theme.of(context).primaryColor,),
+            onTap: () {this.setState(() {this.cur_meeting = meeting.id;});}
+          ),
           new ListTile(
               title: Text(meeting.starttime.toString()),
               subtitle: Text(meeting.endtime.toString()),
@@ -230,24 +302,18 @@ class _MyHomePageState extends State<MyHomePage> {
 
     /* convenience function */
     Card makeCourseCard(Course course) {
-      return new Card(child: Column(
+      print("Trace --- makeCourseCard() --- Building card for ${course.id}");
+      return new Card(
+        elevation: cardElevation1,
+        child: Column(
         children: <Widget>[
           new ListTile(
             title: Text(course.name),
             subtitle: Text("Rice University", style: TextStyle(color: Theme.of(context).primaryColor),),
             leading: Icon(Icons.class_, color: Theme.of(context).primaryColor,),
-            onTap: () {this.setState(() {this.cur_course = course.id;});}
-            /*
-            onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(
-                      builder: (context) => new MyMeetingPage(
-                        user_id: widget.user_id,
-                        db: widget.db,
-                        parent_course: course.id,)));
-
-            }
-            */
+            onTap: () {this.setState(() {
+              print("Trace --- onTap Course Card --- Setting cur_course to ${course.id}");
+              this.cur_course = course.id;});}
             ),
           new ListTile(
             title: Text(read_db(course.my_instrs[0], "instrs/", db: widget.db).first_name + " " + read_db(course.my_instrs[0], "instrs/", db: widget.db).last_name, style: TextStyle(color: Colors.black)),
@@ -266,21 +332,37 @@ class _MyHomePageState extends State<MyHomePage> {
     round_cards = <Card>[];
 
     List all_courses = read_db_subdir("courses/", db: widget.db);
-    print("Trace --- MyHomePageState --- building Course cards");
+    print("Trace --- MyHomePageState --- all_courses = $all_courses");
     for (Course course_full in all_courses) {
+      print("Trace --- MyHomePageState --- building Course cards");
+      print("Trace --- MyHomePageState --- course instrs = ${course_full.my_instrs}");
+      print("Trace --- MyHomePageState --- widget user id = ${widget.user_id}");
       if (course_full.my_instrs.contains(widget.user_id)) course_cards.add(makeCourseCard(course_full));
     }
     List all_meetings = read_db_subdir("meetings/", db: widget.db);
-    print("Trace --- MyHomePageState --- building Meeting cards");
-    for (Meeting meeting_full in all_meetings) {
-      //if (meeting_full.my_instrs.contains(widget.user_id))
-      // TODO meeting and round should also support instr lookup
-      meeting_cards.add(makeMeetingCard(meeting_full));
+    if (cur_course != null) {
+      print(cur_course);
+      print(all_courses[0].id);
+      assert(cur_course == all_courses[0].id);
+      print("Trace --- MyHomePageState --- building Meeting cards");
+      for (Meeting meeting_full in all_meetings) {
+        //if (meeting_full.my_instrs.contains(widget.user_id))
+        // TODO meeting and round should also support instr lookup
+        meeting_cards.add(makeMeetingCard(meeting_full));
+      }
     }
     List all_rounds = read_db_subdir("rounds/", db: widget.db);
-    for (Round round_full in all_rounds) {
-      // TODO switch to fake user
-      if (round_full.my_stdnts.contains(widget.fake_user_id)) round_cards.add(makeRoundCard(round_full));
+    if (cur_course != null && cur_meeting != null) {
+      print("Trace --- MyHomePageState build() --- building Round cards");
+      print("Trace --- MyHomePageState build() --- size of all_rounds = ${all_rounds.length}");
+      for (Round round_full in all_rounds) {
+        print("Trace --- MyHomePageState build() --- building Round cards --- fake stdnt user id = ${super.widget.fake_user_id}");
+        // TODO only display rounds relevant to meeting, actually
+        if (round_full.my_stdnts.contains(super.widget.fake_user_id)) {
+          print("Trace --- MyHomePageState build() --- building ${round_full.id} due to match");
+          round_cards.add(makeRoundCard(round_full));
+        }
+      }
     }
 
     // This method is rerun every time setState is called, for instance as done
@@ -290,29 +372,29 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return new DefaultTabController(
-        length: 3,  // TODO parameterize
-        child: new Scaffold(
-          appBar: new AppBar(
-            bottom: TabBar(
-              tabs: [
-                Tab(icon: Icon(Icons.school)),
-                Tab(icon: Icon(Icons.people)),
-                Tab(icon: Icon(Icons.notifications))
-              ]
-            ),
-            // the App.build method, and use it to set our appbar title.
-            title: new Text(widget.title),
-          ),
-          body: new TabBarView(
-            // Center is a layout widget. It takes a single child and positions it
-            // in the middle of the parent.
-            children: [
-              new ListView(children: course_cards,),
-              new ListView(children: meeting_cards),
-              new ListView(children: round_cards)
+      length: 3,  // TODO parameterize
+      child: new Scaffold(
+        appBar: new AppBar(
+          bottom: TabBar(
+            tabs: [
+              Tab(icon: Icon(Icons.school)),
+              Tab(icon: Icon(Icons.people)),
+              Tab(icon: Icon(Icons.notifications))
             ]
           ),
-      ));
+          // the App.build method, and use it to set our appbar title.
+          title: new Text(widget.title),
+        ),
+        body: new TabBarView(
+          // Center is a layout widget. It takes a single child and positions it
+          // in the middle of the parent.
+          children: [
+            new ListView(children: course_cards,),
+            new ListView(children: meeting_cards),
+            new ListView(children: round_cards)
+          ]
+        ),
+    ));
   }
 }
 
@@ -327,7 +409,7 @@ class RubricForm extends StatefulWidget {
   String speaker;
   Map db;
 
-  RubricForm(
+  RubricForm({
       this.val,
       this.course_id,
       this.meeting_id,
@@ -336,10 +418,11 @@ class RubricForm extends StatefulWidget {
       this.rub_id,
       this.fake_user_id,
       this.speaker,
-      this.db);
+      this.db});
 
   @override
   _rfState createState() {
+    print("Trace --- RubricForm class --- createState() call");
     return _rfState();
   }
 }
@@ -355,29 +438,30 @@ class _rfState extends State<RubricForm> {
 
   @override
   Widget build(BuildContext context) {
-    final Size screenSize = MediaQuery.of(context).size;
+    print("Trace --- _rfState class --- build() call");
 
     List<Widget> buildFields() {  // build a list of rows
       var fields_coll = <Widget>[];
+      print("Trace --- _rfState class --- build() call --- form length = ${super.widget.val.entries.length}");
       for (MapEntry kv in super.widget.val.entries) {
         if (kv.value is List) {
           List<DropdownMenuItem> options = kv.value.map((option) =>
               DropdownMenuItem(child: Text(option),));  // TODO val param?
           fields_coll.add(
-              FormField(
-                builder: (ffState) {
-                  return DropdownButton(
-                    items: options,
-                    onChanged: (choiceOption) {
-                      ffState.setState(() {
-                        ffState.setValue(choiceOption);
-                      })
-                    },
-                    elevation: 9,
-                  );},
-                onSaved: (choiceOption) {reply_builder[kv.key] = choiceOption;},
-                validator: (choiceOption) => choiceOption == null ? errorPrompt : null,
-              )
+            FormField(
+              builder: (ffState) {
+                return DropdownButton(
+                  items: options,
+                  onChanged: (choiceOption) {
+                    ffState.setState(() {
+                      ffState.setValue(choiceOption);
+                    });
+                  },
+                  elevation: buttonElevation1,
+                );},
+              onSaved: (choiceOption) {reply_builder[kv.key] = choiceOption;},
+              validator: (choiceOption) => choiceOption == null ? errorPrompt : null,
+            )
           );
         } else if (kv.value is String) {
           fields_coll.add(TextFormField(
@@ -395,7 +479,7 @@ class _rfState extends State<RubricForm> {
         }
       }
       Container submitButton = Container(
-        width: screenSize.width,
+        //width: screenSize.width,
         child: RaisedButton(
           child: Text(
             "Submit Feedback",
@@ -419,6 +503,7 @@ class _rfState extends State<RubricForm> {
                   val: reply_builder,
                   local_db: super.widget.db);
               print("Trace _rfState --- submit hit --- Saving response");
+              Navigator.pop(context);
             }
           },
           color: pri,
@@ -443,14 +528,17 @@ class _rfState extends State<RubricForm> {
       );
     }
 
-    return Container(
-        padding: EdgeInsets.all(inset1),
-        child: super.widget.val != null ? Form(
-          key: this._formKey,
-          child: ListView(
-            children: buildFields(),
-          ),
-        ) : buildNA()
+    return Scaffold(
+        appBar: AppBar(title: Text("Feedback Form"),),  // TODO parameterize text
+        body: Container(
+          padding: EdgeInsets.all(inset1),
+          child: super.widget.val != null ? Form(
+            key: this._formKey,
+            child: ListView(
+              children: buildFields(),
+            ),
+          ) : buildNA()
+      )
     );
   }
 }
