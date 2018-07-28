@@ -60,22 +60,16 @@ void makeMockData(Map ids, Map local_db) {
       course_id: ids["course"],
       roster_id: ids["ros_1"],
       val: {
-        "rating": {
-          1: false,
-          2: false,
-          3: false},
-        "comments": null},
+        "rating": [1, 2, 3],
+        "comments": "input"},
       local_db: local_db);
   Rubric rub_2 = Rubric(
       id: ids["rub_2"],
       course_id: ids["course"],
       roster_id: ids["ros_1"],
       val: {
-        "rating": {
-          8: false,
-          9: false,
-          10: false},
-        "remarks": null},
+        "rating": [8, 9, 10],
+        "remarks": "input"},
       local_db: local_db
   );
   course.cur_roster = ids["ros_1"];
@@ -435,6 +429,7 @@ class _rfState extends State<RubricForm> {
   final String errorPrompt = "This field is required.";
   final String noRubPrompt = "Oops! No meeting round selected.";
   final _formKey = GlobalKey<FormState>();
+  String selectedOption;
 
   @override
   Widget build(BuildContext context) {
@@ -444,30 +439,49 @@ class _rfState extends State<RubricForm> {
       var fields_coll = <Widget>[];
       print("Trace --- _rfState class --- build() call --- form length = ${super.widget.val.entries.length}");
       for (MapEntry kv in super.widget.val.entries) {
+        print("Trace --- _rfState class --- build() call --- kv = $kv");
         if (kv.value is List) {
-          List<DropdownMenuItem> options = kv.value.map((option) =>
-              DropdownMenuItem(child: Text(option),));  // TODO val param?
+          print("Trace --- _rfState class --- build() call --- building List val");
+
+          List<DropdownMenuItem> options = <DropdownMenuItem>[];
+          for (var option in kv.value) {
+            options.add(DropdownMenuItem(child: Text(option.toString()),));
+          }
           fields_coll.add(
-            FormField(
-              builder: (ffState) {
-                return DropdownButton(
-                  items: options,
-                  onChanged: (choiceOption) {
-                    ffState.setState(() {
-                      ffState.setValue(choiceOption);
-                    });
-                  },
-                  elevation: buttonElevation1,
-                );},
-              onSaved: (choiceOption) {reply_builder[kv.key] = choiceOption;},
-              validator: (choiceOption) => choiceOption == null ? errorPrompt : null,
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [Text(kv.key.toUpperCase().toString()),]
+                  )
+                ),
+                FormField(
+                  builder: (ffState) {
+                    return DropdownButton(
+                      value: selectedOption,
+                      hint: Text(listPrompt),
+                      items: options,
+                      onChanged: (choiceOption) {
+                        selectedOption = choiceOption;
+                        ffState.setState(() {
+                          ffState.setValue(choiceOption);
+                        });
+                      },
+                      elevation: buttonElevation1,
+                    );},
+                  onSaved: (choiceOption) {reply_builder[kv.key] = choiceOption;},
+                  validator: (choiceOption) => choiceOption == null ? errorPrompt : null,
+                )
+              ]
             )
           );
         } else if (kv.value is String) {
+          print("Trace --- _rfState class --- build() call --- building String val");
           fields_coll.add(TextFormField(
             keyboardType: TextInputType.text,
             decoration: new InputDecoration(
-              labelText: kv.key,
+              labelText: kv.key.toUpperCase(),
               hintText: textPrompt,
             ),
             initialValue: "",
@@ -482,11 +496,10 @@ class _rfState extends State<RubricForm> {
         //width: screenSize.width,
         child: RaisedButton(
           child: Text(
-            "Submit Feedback",
+            "SUBMIT",
             style: TextStyle(
-              color: pri_r2,
+              color: Colors.white,
               fontWeight: bold2,
-              fontSize: h2
             ),
           ),
           onPressed: () {
@@ -533,6 +546,7 @@ class _rfState extends State<RubricForm> {
         body: Container(
           padding: EdgeInsets.all(inset1),
           child: super.widget.val != null ? Form(
+
             key: this._formKey,
             child: ListView(
               children: buildFields(),
