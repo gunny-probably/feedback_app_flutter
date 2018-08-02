@@ -423,7 +423,7 @@ class RubricForm extends StatefulWidget {
 
 class _rfState extends State<RubricForm> {
   static String resp_id = get_id();
-  Map reply_builder = {};
+  Map<String, String> reply_builder = {};
   final String textPrompt = "Fill me in";
   final String listPrompt = "Choose one";
   final String errorPrompt = "This field is required.";
@@ -445,7 +445,12 @@ class _rfState extends State<RubricForm> {
 
           List<DropdownMenuItem> options = <DropdownMenuItem>[];
           for (var option in kv.value) {
-            options.add(DropdownMenuItem(child: Text(option.toString()),));
+            options.add(
+              DropdownMenuItem(
+                value: option.toString(),
+                child: Text(option.toString()),
+              )
+            );
           }
           fields_coll.add(
             Row(
@@ -463,6 +468,7 @@ class _rfState extends State<RubricForm> {
                       hint: Text(listPrompt),
                       items: options,
                       onChanged: (choiceOption) {
+                        print("Trace --- _rfState class --- build() --- buildFields() --- FormField onChanged callback --- choiceOption = $choiceOption");
                         selectedOption = choiceOption;
                         ffState.setState(() {
                           ffState.setValue(choiceOption);
@@ -470,8 +476,13 @@ class _rfState extends State<RubricForm> {
                       },
                       elevation: buttonElevation1,
                     );},
-                  onSaved: (choiceOption) {reply_builder[kv.key] = choiceOption;},
-                  validator: (choiceOption) => choiceOption == null ? errorPrompt : null,
+                  onSaved: (choiceOption) {
+                    reply_builder[kv.key] = choiceOption;
+                  },
+                  validator: (choiceOption) {
+                    print("Trace --- _rfState class --- build() --- buildFields() --- FormField validator callback --- choiceOption = $choiceOption");
+                    if (choiceOption == null) return errorPrompt;
+                  }
                 )
               ]
             )
@@ -486,7 +497,10 @@ class _rfState extends State<RubricForm> {
             ),
             initialValue: "",
             onSaved: (inputText) {reply_builder[kv.key] = inputText;},
-            validator: (inputText) => inputText.compareTo("") == 0 ? errorPrompt : null,
+            validator: (inputText) {
+              print("Trace --- _rfState class --- build() --- buildFields() --- textFormField validator callback triggered --- inputText = $inputText");
+              if (inputText.compareTo("") == 0) return errorPrompt;
+            },
           ));
         } else {
           continue;
@@ -503,7 +517,9 @@ class _rfState extends State<RubricForm> {
             ),
           ),
           onPressed: () {
+            print("Trace --- _rfState class --- build() --- buildFields() --- submitButton onPressed callback triggered");
             if (this._formKey.currentState.validate()) {
+              print("Trace --- _rfState class --- build() --- buildFields() --- validate() check true");
               this._formKey.currentState.save();
               Response(id: resp_id,
                   course_id: super.widget.course_id,
@@ -546,7 +562,6 @@ class _rfState extends State<RubricForm> {
         body: Container(
           padding: EdgeInsets.all(inset1),
           child: super.widget.val != null ? Form(
-
             key: this._formKey,
             child: ListView(
               children: buildFields(),
