@@ -495,11 +495,11 @@ class _rfState extends State<RubricForm> {
               labelText: kv.key.toUpperCase(),
               hintText: textPrompt,
             ),
-            initialValue: "",
+            initialValue: kv.value,
             onSaved: (inputText) {reply_builder[kv.key] = inputText;},
             validator: (inputText) {
               print("Trace --- _rfState class --- build() --- buildFields() --- textFormField validator callback triggered --- inputText = $inputText");
-              if (inputText.compareTo("") == 0) return errorPrompt;
+              if (inputText.compareTo(kv.value) == 0) return errorPrompt;
             },
           ));
         } else {

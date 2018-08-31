@@ -22,8 +22,8 @@ class Stdnt {
       this.my_rounds,
       this.made_responses,
       this.received_responses,
-      local_db}) {
-    write_db(this, "stdnts/", db: local_db);
+      db}) {
+    write_db(this, "stdnts/", db: db);
   }
 
   // json, map cons
@@ -37,6 +37,20 @@ class Stdnt {
     this.my_rounds = fields['my_rounds'];
     this.made_responses = fields['made_responses'];
     this.received_responses = fields["received_responses"];
+  }
+
+  Map<String, dynamic> toMap() {
+    Map<String, dynamic> drained = Map<String, dynamic>();
+    drained['id'] = this.id;
+    drained['first_name'] = this.first_name;
+    drained['last_name'] = this.last_name;
+    drained['netid'] = this.netid;
+    drained['my_courses'] = this.my_courses;
+    drained['my_meetings'] = this.my_meetings;
+    drained['my_rounds'] = this.my_rounds;
+    drained['made_responses'] = this.made_responses;
+    drained["received_responses"] = this.received_responses;
+    return drained;
   }
 
   void create_response(Map<String, String> ans,

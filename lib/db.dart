@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'course.dart';
@@ -51,31 +54,35 @@ dynamic read_cloudfs(String docpath, dynamic id) {
 }
 
 /* entry method */
-void write_db(dynamic obj, String subdir, {Map db}) {
-  if (db != null) {
+void write_db(dynamic obj, String subdir, {dynamic db}) {
+  if (db.runtimeType is Map) {
     if (db[subdir] == null) db[subdir] = [];
     var idx = db[subdir].indexWhere((elem) => elem.id == obj.id);
     if (idx != -1) db[subdir].removeAt(idx);  // overwrite existing thing.
     db[subdir].add(obj);
     return;
   }
-  write_cloudfs(subdir, obj.id, obj);
-  return;
+  if (db.runtimeType is Firestore) {
+    write_cloudfs(subdir, obj.id, obj.toMap(), db);
+  }
 }
 
-dynamic write_cloudfs(String docpath, dynamic id, Map<String, dynamic> obj) {
-  final DocumentReference ref = Firestore.instance.document(
-      docpath + id.toString());
-  Firestore.instance.runTransaction((Transaction tx) async {
-    DocumentSnapshot snap = await tx.get(ref);
+void write_cloudfs(String docpath, dynamic id, Map<String, dynamic> objMap, Firestore db) {
+  final DocumentReference docRef = db.document(docpath + id.toString());
+  print("Trace --- write_cloudfs() --- docRef = $docRef");
+//  final DocumentReference docRef = colRef.document(id.toString());
+//  print("Trace --- write_cloudfs() --- docRef = $docRef");
+  db.runTransaction((Transaction tx) async {
+    DocumentSnapshot snap = await tx.get(docRef);
+    print("Trace --- write_cloudfs() --- runTransaction callback --- snap = $snap");
     if (!snap.exists) {
-      tx.set(ref, obj);
+      await tx.set(docRef, objMap);
     } else {
-      tx.update(ref, obj);
+      await tx.update(docRef, objMap);
     }
   });
-  throw new CloudFSException(
-      'Utils module write_cloudfs() --- Transaction failed --- Trace');
+//  throw new CloudFSException(
+//      'Utils module write_cloudfs() --- Transaction failed --- Trace');
 }
 
 /* deprecated */
